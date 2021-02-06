@@ -1,0 +1,332 @@
+// pegboard
+// Controlador del pegboard
+//
+// Gustavo Enrique Jiménez
+// gejimenez@gmail.com
+// ILAV - CONICET - 2020
+
+
+// 10/03/2020 - Agregado de cables para encender los LEDs. El multiplexado 
+//              deja los LEDs ligeramente encendidos, así que se agrega un 
+//              cable para cada columna de LEDs y el software para
+//              encenderlos.
+// 06/03/2020 - Lectura de posición de fichas
+// 04/03/2020 - Comienzo a escribir el programa
+
+#include <TimerOne.h>
+
+#define CANTIDAD_FILAS 5
+#define CANTIDAD_COLUMNAS 4
+#define TIEMPO_POV_ON_MS 10
+#define TIEMPO_POV_OFF_MS 10
+
+byte Fila1=48;//PL1; // Fila de arriba
+byte Fila2=46;//PL3;
+byte Fila3=44;//PL5;
+byte Fila4=42;//PL7; // Fila de abajo
+byte Fila5=40; // Contenedor de fichas
+byte ColumnaA=38; // Columna más a la izquierda
+byte ColumnaB=36;
+byte ColumnaC=34;
+byte ColumnaD=32; // Columna más a la derecha
+byte AnodosColumna1 = 30;
+byte AnodosColumna2 = 28;
+byte AnodosColumna3 = 26;
+byte AnodosColumna4 = 24;
+byte Filas[CANTIDAD_FILAS]={Fila1,Fila2,Fila3,Fila4,Fila5};
+byte Columnas[CANTIDAD_COLUMNAS]={ColumnaA,ColumnaB,ColumnaC,ColumnaD};
+byte Columna_Anodos[CANTIDAD_COLUMNAS] = {AnodosColumna1, AnodosColumna2, AnodosColumna3, AnodosColumna4};
+
+bool estado_pov = false;
+String comando; 
+String comando_inicio = "START";
+byte Estados[5][4];
+byte EstadosAnterior[5][4];
+unsigned long time;
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  delay(500);
+  Serial.begin(115200);
+  Serial1.begin(115200);
+  Serial.println("Iniciando pegboard-test");
+  pinMode(Fila1,OUTPUT);
+  pinMode(Fila2,OUTPUT);
+  pinMode(Fila3,OUTPUT);
+  pinMode(Fila4,OUTPUT);
+  pinMode(Fila5,OUTPUT);
+  digitalWrite(Fila1,HIGH);
+  digitalWrite(Fila2,HIGH);
+  digitalWrite(Fila3,HIGH);
+  digitalWrite(Fila4,HIGH);
+  digitalWrite(Fila5,HIGH);
+  //mio
+  pinMode(AnodosColumna1, OUTPUT);
+  pinMode(AnodosColumna2, OUTPUT);
+  pinMode(AnodosColumna3, OUTPUT);
+  pinMode(AnodosColumna4, OUTPUT);
+  digitalWrite(AnodosColumna1, LOW);
+  digitalWrite(AnodosColumna2, LOW);
+  digitalWrite(AnodosColumna3, LOW);
+  digitalWrite(AnodosColumna4, LOW);
+  //-----
+  pinMode(ColumnaA,INPUT);  
+  pinMode(ColumnaB,INPUT);  
+  pinMode(ColumnaC,INPUT);  
+  pinMode(ColumnaD,INPUT);
+
+  //Enciende todos los LEDs. Sirve para comprobar que todos funcionen
+  encenderLeds();
+  //Le paso una entrada a la funcion random
+  pinMode(A0, INPUT);
+  randomSeed(analogRead(A0));
+  //----
+  Serial.println("Puertos iniciados");
+  Serial.println("Esperando comando (START/stop)...");
+  //Limpia buffers entrada
+  while (Serial.available()) Serial.read();
+  while (Serial1.available()) Serial1.read();
+  //Inicializa timer para POV
+  Timer1.initialize(TIEMPO_POV_ON_MS);
+  Timer1.attachInterrupt(CambiarEstadoPov); 
+}
+
+void CambiarEstadoPov(){
+  estado_pov != estado_pov;
+}
+
+void LeerEstados(){
+ pinMode(ColumnaA,INPUT);
+ pinMode(ColumnaB,INPUT);
+ pinMode(ColumnaC,INPUT);
+ pinMode(ColumnaD,INPUT);
+ pinMode(Fila1,OUTPUT);
+ pinMode(Fila2,OUTPUT);
+ pinMode(Fila3,OUTPUT);
+ pinMode(Fila4,OUTPUT);
+ pinMode(Fila5,OUTPUT);
+
+ // EstadosAnterior=Estados;
+ memcpy(EstadosAnterior, Estados, 20);
+
+ for (int fila=0;fila<4;fila++){
+  pinMode(Filas[fila],OUTPUT);
+  digitalWrite(Filas[fila],HIGH);
+  delayMicroseconds(10);
+  Estados[fila][0]=digitalRead(ColumnaA);
+  Estados[fila][1]=digitalRead(ColumnaB);
+  Estados[fila][2]=digitalRead(ColumnaC);
+  Estados[fila][3]=digitalRead(ColumnaD);
+  delayMicroseconds(50);
+  Estados[fila][0]=Estados[fila][0] && digitalRead(ColumnaA);
+  Estados[fila][1]=Estados[fila][1] && digitalRead(ColumnaB);
+  Estados[fila][2]=Estados[fila][2] && digitalRead(ColumnaC);
+  Estados[fila][3]=Estados[fila][3] && digitalRead(ColumnaD);
+  digitalWrite(Filas[fila],LOW);
+ }
+  pinMode(ColumnaA,OUTPUT);
+  pinMode(ColumnaB,OUTPUT);
+  pinMode(ColumnaC,OUTPUT);
+  pinMode(ColumnaD,OUTPUT);
+  digitalWrite(ColumnaA,LOW);
+  digitalWrite(ColumnaB,LOW);
+  digitalWrite(ColumnaC,LOW);
+  digitalWrite(ColumnaD,LOW);
+}
+
+void ProcesarEstados(){
+ for (int fila=0;fila<4;fila++){
+  for (int columna=0;columna<4;columna++){
+   if (Estados[fila][columna]!=EstadosAnterior[fila][columna]){
+    String mensaje;
+    String SiNo;
+    if (Estados[fila][columna]==1){SiNo="Si";} else {SiNo="No";}
+    mensaje=String(char(fila+49))+String(char(columna+65))+" "+SiNo+" "+String(millis());
+    Serial.println(mensaje);
+    delay(100);
+   }
+  }
+ }
+}
+
+void encenderLeds(){
+  for (int i = 0; i < CANTIDAD_FILAS; i++){
+    digitalWrite(Filas[i], LOW);
+    for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
+      digitalWrite(Columna_Anodos[j], HIGH);
+      delay(50);
+      digitalWrite(Columna_Anodos[j], LOW);
+    }
+    digitalWrite(Filas[i], HIGH);
+  }
+}
+
+int elegirProximaFila(){
+  long fila = random(0, CANTIDAD_FILAS - 2); //no debe incluir la ultima, que es donde van las piezas
+  return (int)fila;
+}
+
+int elegirProximaColumna(){
+  long columna = random(0, CANTIDAD_COLUMNAS - 1);
+  return (int)columna;
+}
+
+void encenderLed(int fila, int columna){
+  digitalWrite(Filas[fila], LOW);
+  digitalWrite(Columna_Anodos[columna], HIGH);
+}
+
+void apagarLed(int fila, int columna){
+  digitalWrite(Filas[fila], HIGH);
+  digitalWrite(Columna_Anodos[columna], LOW);
+}
+
+unsigned long esperarInsercion(){
+  //Muestrear tiempo ahora
+  //Leer teclado (bloqueando hasta que inserte pieza)
+    /*  Las filas se deben poner en HIGH de a una (estan todas en HIGH)
+        Por cada fila, se deben leer las columnas de a una
+        Cuando alguna de HIGH, se muestrea
+        Restablecer filas: dejarlas a todas en HIGH
+    */
+  //Muestrear tiempo al insertar pieza
+  //Devolver diferencia de tiempos
+
+  unsigned long tiempo_inicial = micros();
+  unsigned long tiempo_final = 0;
+  bool inserto = false;
+  while (!inserto){
+    for (int i = 0; i < CANTIDAD_FILAS; i++){
+      digitalWrite(Filas[i], LOW);
+    }
+    for (int i = 0; i < CANTIDAD_FILAS; i++){
+      digitalWrite(Filas[i], HIGH);
+      for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
+        if (digitalRead(Columnas[j])){
+          tiempo_final = micros();
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.print(", ");
+          Serial.println(j);
+          inserto = true;
+        }
+      }
+      digitalWrite(Filas[i], LOW);
+    }
+  }
+  for (int i = 0; i < CANTIDAD_FILAS; i++){
+    digitalWrite(Filas[i], HIGH);
+  }
+  return tiempo_final - tiempo_inicial;
+}
+
+unsigned long esperarInsercionPOV(int fila, int columna){
+  //Muestrear tiempo ahora
+  //Leer teclado (bloqueando hasta que inserte pieza)
+    /*  Las filas se deben poner en HIGH de a una (estan todas en HIGH)
+        Por cada fila, se deben leer las columnas de a una
+        Cuando alguna de HIGH, se muestrea
+        Restablecer filas: dejarlas a todas en HIGH
+    */
+  //Muestrear tiempo al insertar pieza
+  //Devolver diferencia de tiempos
+
+  unsigned long tiempo_inicial = micros();
+  unsigned long tiempo_final = 0;
+  bool inserto = false;
+  while (!inserto){
+    for (int i = 0; i < CANTIDAD_FILAS; i++){
+      if (i == fila && estado_pov) continue;
+      digitalWrite(Filas[i], LOW);
+    }
+    for (int i = 0; i < CANTIDAD_FILAS; i++){
+      digitalWrite(Filas[i], HIGH);
+      for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
+        if (j == columna && estado_pov) continue;
+        if (digitalRead(Columnas[j])){
+          tiempo_final = micros();
+          Serial.print("LED ");
+          Serial.print(i);
+          Serial.print(", ");
+          Serial.println(j);
+          inserto = true;
+        }
+      }
+      digitalWrite(Filas[i], LOW);
+    }
+  }
+  for (int i = 0; i < CANTIDAD_FILAS; i++){
+    if (i == fila && estado_pov) continue;
+    digitalWrite(Filas[i], HIGH);
+  }
+  return tiempo_final - tiempo_inicial;
+  
+}
+
+void esperarComandoInicio(){
+  Serial.println("---------------------------------");
+  Serial.println("Esperando comando (START/stop)..."); //falta implementar stop
+  do{
+    char recibido;
+
+    String cmd = "";
+
+    while (cmd.length()<comando_inicio.length()){
+      while (Serial.available()){
+        recibido = Serial.read();
+        if (recibido != '\n') cmd += recibido;      
+      }
+    }
+
+    if (cmd.equals(comando_inicio)){
+      Serial.println("Ciclo Iniciado");
+      return;
+    }
+
+  }while(1);
+}
+
+
+void loop(){
+  
+  esperarComandoInicio(); //bloquea hasta que recibe la cadena comando_inicio  
+  
+  int fila = elegirProximaFila();
+  int columna = elegirProximaColumna();
+
+  encenderLed(fila, columna);
+  //unsigned long tiempo = esperarInsercion();
+  unsigned long tiempo = esperarInsercionPOV(fila, columna);
+  apagarLed(fila, columna);
+  Serial.print("Tiempo: ");
+  Serial.println(tiempo);
+}
+
+// the loop function runs over and over again forever
+/*
+void loop() {
+
+ char fin=10;
+
+/* LeerEstados();
+ ProcesarEstados();
+
+  if (Serial.available()){
+    comando=Serial.readStringUntil(fin);
+  }
+
+  if (Serial1.available()){
+    comando=Serial1.readStringUntil(fin);
+    Serial.println(comando);
+  }
+  *//*
+
+  while (Serial1.available() > 0) {
+    Serial.write(Serial1.read());
+    //delay(10);
+    //Serial.println(123);
+  }
+  while (Serial.available() > 0) {
+    Serial1.write(Serial.read());
+  }
+}*/
