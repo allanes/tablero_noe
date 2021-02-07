@@ -141,6 +141,7 @@ bool transitionS1S2(){
     target_fila = (int)random(0, CANTIDAD_FILAS - 2);
     target_columna = (int)random(0, CANTIDAD_COLUMNAS - 1);
     //Muestrea el tiempo de inicio de todo el ciclo
+    Serial.println("--------------------------");
     Serial.println("Ciclo Iniciado");
     tiempo_inicial = millis();
     return true;
@@ -271,8 +272,15 @@ bool transitionS0S3bis(){
   return false;
 }
 bool transitionS1S0(){
-  if (!es_comando || entrada == COMANDO_FIN)
+  if (!es_comando || entrada == COMANDO_FIN){
+    apagarLeds();
+    if (entrada == COMANDO_FIN){
+      analizar = false;
+      entrada = "";
+      Serial.println("Ciclo abortado");
+    }
     return true;
+  }
   return false;
   }
 bool transitionToS0(){
