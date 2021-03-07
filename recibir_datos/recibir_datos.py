@@ -70,7 +70,7 @@ while(opcion1 != 'q'):
     print('Puerto: ' + puerto)
     comando = ''
     opcion1 = ''
-    opcion1 = input('>>')
+    opcion1 = input('\n>>')
     if opcion1 == '':
         comando = 'START'
         abriryenviar(comando, '')
