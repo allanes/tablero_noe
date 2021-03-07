@@ -28,6 +28,8 @@ extern unsigned long tiempo_inicial, tiempo_en_alzar, tiempo_final;
 extern unsigned long ultima_transicion;
 //Manejo del tablero
 extern int target_fila, target_columna;
+extern int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS];
+extern int lugares_disponibles;
 extern int insercion_columna, insercion_fila;
 extern bool insercion;
 extern int pieza_levantada;
@@ -55,3 +57,5 @@ void apagarLeds();
 void encenderLed();
 int leerContenedor();
 bool leerTablero();
+void inicializarTablero();
+void elegirProximaFilaYColumna();

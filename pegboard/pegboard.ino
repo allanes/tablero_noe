@@ -138,8 +138,7 @@ bool transitionS1S2(){
     entrada = "";
     analizar = false;
     //Elije proximo led
-    target_fila = (int)random(0, CANTIDAD_FILAS - 2);
-    target_columna = (int)random(0, CANTIDAD_COLUMNAS - 1);
+    elegirProximaFilaYColumna(); //queda en variables globales target_
     //Muestrea el tiempo de inicio de todo el ciclo
     Serial.println("--------------------------");
     Serial.println("Ciclo Iniciado");

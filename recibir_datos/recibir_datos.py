@@ -23,7 +23,7 @@ def abriryenviar(cmd, guardar):
         while (nuevocomando == ''):
             # busca entrada de usuario
             try:
-                nuevocomando = inputimeout(prompt='', timeout=5)
+                nuevocomando = inputimeout(prompt='', timeout=3)
             except TimeoutOccurred:
                 nuevocomando = ''
             # lee puerto y muestra lectura
