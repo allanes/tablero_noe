@@ -79,8 +79,8 @@ int leerContenedor(){
   int ret = -1;
   int fila_contenedora = CANTIDAD_FILAS - 1;
   digitalWrite(Filas[fila_contenedora], HIGH);
-  // for (int col = 0; col < CANTIDAD_COLUMNAS - 1; col++){
-  for (int col = 0; col < 1; col++){
+  for (int col = 0; col < CANTIDAD_COLUMNAS - 1; col++){
+  // pythfor (int col = 0; col < 1; col++){
     if (digitalRead(Columnas[col]) == false){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
       Serial.print("Levanto PIEZA ");
       Serial.println(col);
