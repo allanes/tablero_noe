@@ -100,6 +100,14 @@ void enviarResultados(){
   Serial.println("-------------------------------------");
 }
 
+void prepararSiguienteCiclo(){
+  //Elije proximo led
+  elegirProximaFilaYColumna(); //queda en variables globales target_
+  //Muestrea el tiempo de inicio de todo el ciclo
+  Serial.println("--------------------------");
+  Serial.println("Ciclo Iniciado");
+  tiempo_inicial = millis();
+}
 
 void loop(){
   machine.run();
@@ -138,12 +146,7 @@ bool transitionS1S2(){
   if (entrada == COMANDO_INICIO){
     entrada = "";
     analizar = false;
-    //Elije proximo led
-    elegirProximaFilaYColumna(); //queda en variables globales target_
-    //Muestrea el tiempo de inicio de todo el ciclo
-    Serial.println("--------------------------");
-    Serial.println("Ciclo Iniciado");
-    tiempo_inicial = millis();
+    prepararSiguienteCiclo();
     return true;
   }
   return false;
@@ -254,6 +257,7 @@ bool transitionS4S0(){
 bool transitionS4S2(){
   if (!lugares_disponibles) return false;
   encenderCantidadUsados();
+  prepararSiguienteCiclo();
   return true;
 }
 
