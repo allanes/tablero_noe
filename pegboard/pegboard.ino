@@ -110,7 +110,9 @@ void prepararSiguienteCiclo(){
   elegirProximaFilaYColumna(); //queda en variables globales target_
   //Muestrea el tiempo de inicio de todo el ciclo
   Serial.println("--------------------------");
-  Serial.println("Ciclo Iniciado");
+  if (lugares_disponibles == CANTIDAD_LUGARES_MAXIMOS){
+    Serial.println("Ciclo Iniciado");
+  }
   tiempo_inicial = millis();
 }
 
