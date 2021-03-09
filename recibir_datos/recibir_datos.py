@@ -1,6 +1,7 @@
 import serial
 import time
 from inputimeout import inputimeout, TimeoutOccurred
+from datetime import datetime
 
 opcion1 = ''
 puerto = 'COM11'
@@ -38,10 +39,11 @@ def abriryenviar(cmd, guardar):
 
                 if line.startswith(b'Ciclo Iniciado'):
                     guardando = True
-                    hora_inicio = str(time.time())
+                    now = datetime.now()
+                    hora_inicio = now.strftime("%Y%m%d%H%M%S")
                     guardar = hora_inicio + '\n'
                     print('\nEmpieza a guardar\n')
-                elif line.startswith(b'Demora total'): 
+                elif line.startswith(b'Fin del proceso'): 
                     guardando = False
                     print('\nTermina de guardar\n')
                     # escribe la variable guardar en un nuevo archivo

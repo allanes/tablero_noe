@@ -33,6 +33,7 @@ extern int lugares_disponibles;
 extern int insercion_columna, insercion_fila;
 extern bool insercion;
 extern int pieza_levantada;
+#define CANTIDAD_LUGARES_MAXIMOS ((CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS)
 //Conexiones de GPIO
 extern byte Fila2;//PL3;
 extern byte Fila1;//PL1; // Fila de arriba

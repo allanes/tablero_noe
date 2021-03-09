@@ -77,8 +77,10 @@ void setup() {
 
 
 void enviarResultados(){
+  int lugares_usados = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles;
   String piezas[CANTIDAD_COLUMNAS] = {"Circulo", "Triangulo", "Cuadrado", "Pentagono"};
-  
+  Serial.print("Pieza N");
+  Serial.println(lugares_usados);
   Serial.print("Pieza levantada: ");
   Serial.println(piezas[pieza_levantada]);
   Serial.print("Fila de insercion: ");
@@ -97,6 +99,9 @@ void enviarResultados(){
   Serial.println(tiempo_final - tiempo_en_alzar);
   Serial.print("Demora total: ");
   Serial.println(tiempo_final - tiempo_inicial);
+  if (lugares_usados == CANTIDAD_LUGARES_MAXIMOS - 1){
+    Serial.println("Fin del proceso...");
+  }
   Serial.println("-------------------------------------");
 }
 

@@ -19,7 +19,6 @@ int insercion_columna, insercion_fila;
 bool insercion;
 int pieza_levantada = -1;
 int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS] = {0};
-#define CANTIDAD_LUGARES_MAXIMOS ((CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS)
 int lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
 //Conexiones de GPIO
 byte Fila2=46;//PL3;
