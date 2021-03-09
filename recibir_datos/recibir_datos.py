@@ -3,11 +3,18 @@ import time
 from inputimeout import inputimeout, TimeoutOccurred
 from datetime import datetime
 
-opcion1 = ''
+# Configuración de puerto y velocidad por defecto
 puerto = 'COM11'
 velocidad = 115200
+# Configuracion para el control de creacion de archivos
+clave_inicio = b'Ciclo Iniciado'
+clave_fin = b'Fin del proceso'
+# Tiempo maximo de espera al usuario (de forma cíclica) en segundos
+# El micro deja de mostrar los datos que recibe y espera
+esperar_usuario = 3
 
 
+opcion1 = ''
 def abriryenviar(cmd, guardar):
     volveraentrar = False
     with serial.Serial(puerto, velocidad, timeout=1) as ser:
@@ -24,7 +31,7 @@ def abriryenviar(cmd, guardar):
         while (nuevocomando == ''):
             # busca entrada de usuario
             try:
-                nuevocomando = inputimeout(prompt='', timeout=3)
+                nuevocomando = inputimeout(prompt='', timeout=esperar_usuario)
             except TimeoutOccurred:
                 nuevocomando = ''
             # lee puerto y muestra lectura
@@ -37,15 +44,13 @@ def abriryenviar(cmd, guardar):
                     guardar = guardar + line.decode("utf8", 'ignore')
                     print(line)
 
-                if line.startswith(b'Ciclo Iniciado'):
+                if line.startswith(clave_inicio):
                     guardando = True
                     now = datetime.now()
                     hora_inicio = now.strftime("%Y%m%d%H%M%S")
                     guardar = hora_inicio + '\n'
-                    print('\nEmpieza a guardar\n')
-                elif line.startswith(b'Fin del proceso'): 
+                elif line.startswith(clave_fin): 
                     guardando = False
-                    print('\nTermina de guardar\n')
                     # escribe la variable guardar en un nuevo archivo
                     my_file = open(hora_inicio + '.txt', 'w')
                     my_file.writelines(guardar) #Write multiple lines
@@ -82,6 +87,7 @@ while(opcion1 != 'q'):
         print('Escriba el puerto: ')
         puerto = input()
     else:
+        comando = opcion1
         abriryenviar(comando, '')
 
     
