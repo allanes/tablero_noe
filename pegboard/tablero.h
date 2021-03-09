@@ -54,8 +54,10 @@ extern byte Columna_Anodos[CANTIDAD_COLUMNAS];
 //------Funciones-------
 void encenderLeds();
 void apagarLeds();
+void encenderCantidadUsados();
 void encenderLed();
 int leerContenedor();
 bool leerTablero();
 void inicializarTablero();
 void elegirProximaFilaYColumna();
+void resetTablero();

@@ -54,6 +54,7 @@ void setup() {
   S3bis->addTransition(&transitionS3bisS3,S3);
   S3bis->addTransition(&transitionS3bisS4,S4);
   S4->addTransition(&transitionS4S0,S0);
+  S4->addTransition(&transitionS4S2,S2);
   //Agrego las transiciones intermedias para leer entrada serie
   S0->addTransition(&transitionS0S1,S1);
   S0->addTransition(&transitionS0S2,S2);
@@ -238,11 +239,21 @@ void state4(){
   if(machine.executeOnce){
     apagarLeds();
     enviarResultados();
-    estado_anterior = "S0";
+    lugares_disponibles--;
+    estado_anterior = "S4";
   }
 }
 
 bool transitionS4S0(){
+  if (lugares_disponibles) return false;
+  resetTablero();
+  estado_anterior = "S0";
+  return true;
+}
+
+bool transitionS4S2(){
+  if (!lugares_disponibles) return false;
+  encenderCantidadUsados();
   return true;
 }
 

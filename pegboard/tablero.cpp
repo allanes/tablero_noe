@@ -19,7 +19,8 @@ int insercion_columna, insercion_fila;
 bool insercion;
 int pieza_levantada = -1;
 int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS] = {0};
-int lugares_disponibles = (CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS;
+#define CANTIDAD_LUGARES_MAXIMOS ((CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS)
+int lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
 //Conexiones de GPIO
 byte Fila2=46;//PL3;
 byte Fila1=48;//PL1; // Fila de arriba
@@ -57,6 +58,19 @@ void encenderLeds(){
       digitalWrite(Columna_Anodos[j], LOW);
     }
     digitalWrite(Filas[i], HIGH);
+  }
+}
+
+void encenderCantidadUsados(){  
+  int lugares_usados;
+  for (int k=0; k<2; k++){
+    //lugares_disponibles es 16 al principio
+    lugares_usados = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles - 1;
+    digitalWrite(Filas[lugares_usados / (CANTIDAD_FILAS - 1)], LOW);
+    digitalWrite(Columna_Anodos[lugares_usados % CANTIDAD_COLUMNAS], HIGH);
+    delay(250);
+    apagarLeds();
+    delay(150);
   }
 }
 
@@ -154,14 +168,15 @@ void elegirProximaFilaYColumna(){
   }while(tablero_usado[target_fila][target_columna] == 1);
   
   tablero_usado[target_fila][target_columna] = 1;
-  lugares_disponibles--;
-  if (!lugares_disponibles){
-    //Reseteo el tablero_usado para volver a empezar
-    lugares_disponibles = (CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS;
+}
+
+void resetTablero(){
+  //Reseteo el tablero_usado para volver a empezar
+    lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
     for (int i=0; i<CANTIDAD_FILAS-1; i++){
       for (int j=0; j<CANTIDAD_COLUMNAS; j++){
         tablero_usado[i][j] = 0;
       }
     }
-  }
+    encenderLeds();
 }
