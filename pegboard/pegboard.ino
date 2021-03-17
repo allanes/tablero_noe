@@ -29,6 +29,8 @@ State* S2bis =  machine.addState(&state2bis);
 State* S3 =     machine.addState(&state3);
 State* S3bis =  machine.addState(&state3bis);
 State* S4 =  machine.addState(&state4);
+State* S5 = machine.addState(&state5);
+State* S5bis = machine.addState(&state5bis);
 String estado_anterior = "S0";
 
 // the setup function runs once when you press reset or power the board
@@ -54,34 +56,33 @@ void setup() {
   S3bis->addTransition(&transitionS3bisS3,S3);
   S3bis->addTransition(&transitionS3bisS4,S4);
   S4->addTransition(&transitionS4S0,S0);
-  S4->addTransition(&transitionS4S2,S2);
+  S4->addTransition(&transitionS4S5,S5);
+  S5->addTransition(&transitionS5S5bis,S5bis);
+  S5bis->addTransition(&transitionS5bisS5,S5);
+  S5bis->addTransition(&transitionS5bisS2,S2);
   //Agrego las transiciones intermedias para leer entrada serie
   S0->addTransition(&transitionS0S1,S1);
   S0->addTransition(&transitionS0S2,S2);
   S0->addTransition(&transitionS0S2bis,S2bis);
   S0->addTransition(&transitionS0S3,S3);
   S0->addTransition(&transitionS0S3bis,S3bis);
+  S0->addTransition(&transitionS0S5,S5);
+  S0->addTransition(&transitionS0S5bis,S5bis);
   S1->addTransition(&transitionS1S0,S0);
   S2->addTransition(&transitionToS0,S0);
   S2bis->addTransition(&transitionToS0,S0);
   S3->addTransition(&transitionToS0,S0);
   S3bis->addTransition(&transitionToS0,S0);
+  S5->addTransition(&transitionToS0,S0);
+  S5bis->addTransition(&transitionToS0,S0);
 }
 
-// extern void encenderLeds();
-// extern void apagarLeds();
-// extern void encenderLed();
-// extern int leerContenedor();
-// extern bool leerTablero();
-
-
-
 void enviarResultados(){
-  int lugares_usados = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles;
+  // int siguiente_pos_disponible = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles;
   String piezas[CANTIDAD_COLUMNAS] = {"Circulo", "Triangulo", "Cuadrado", "Pentagono"};
   Serial.print("Pieza N");
-  Serial.println(lugares_usados);
-  Serial.print("Pieza levantada: ");
+  Serial.println(siguiente_pos_disponible);
+  Serial.print("Forma levantada: ");
   Serial.println(piezas[pieza_levantada]);
   Serial.print("Fila de insercion: ");
   Serial.println(insercion_fila);
@@ -99,7 +100,7 @@ void enviarResultados(){
   Serial.println(tiempo_final - tiempo_en_alzar);
   Serial.print("Demora total: ");
   Serial.println(tiempo_final - tiempo_inicial);
-  if (lugares_usados == CANTIDAD_LUGARES_MAXIMOS - 1){
+  if (siguiente_pos_disponible == CANTIDAD_LUGARES_MAXIMOS){
     Serial.println("Fin del proceso...");
   }
   Serial.println("-------------------------------------");
@@ -110,7 +111,7 @@ void prepararSiguienteCiclo(){
   elegirProximaFilaYColumna(); //queda en variables globales target_
   //Muestrea el tiempo de inicio de todo el ciclo
   Serial.println("--------------------------");
-  if (lugares_disponibles == CANTIDAD_LUGARES_MAXIMOS){
+  if (siguiente_pos_disponible == 0){
     Serial.println("Ciclo Iniciado");
   }
   tiempo_inicial = millis();
@@ -183,7 +184,8 @@ void state2bis(){
     ultima_transicion = millis();
     estado_anterior = "S2bis";
   }
-  pieza_levantada = leerContenedor();
+  bool espera_insercion = false;
+  pieza_levantada = leerContenedor(espera_insercion);
 }
 
 bool transitionS2bisS2(){
@@ -208,6 +210,7 @@ void state3(){
     //Enciende Led Elegido
     encenderLed();
     //Referencia para POV
+    
     ultima_transicion = millis();
     estado_anterior = "S3";
   }
@@ -249,25 +252,67 @@ void state4(){
   if(machine.executeOnce){
     apagarLeds();
     enviarResultados();
-    lugares_disponibles--;
+    siguiente_pos_disponible++;
     estado_anterior = "S4";
   }
 }
 
 bool transitionS4S0(){
-  if (lugares_disponibles) return false;
+  if (siguiente_pos_disponible != CANTIDAD_LUGARES_MAXIMOS) return false;
   resetTablero();
   estado_anterior = "S0";
   return true;
 }
 
-bool transitionS4S2(){
-  if (!lugares_disponibles) return false;
-  encenderCantidadUsados();
-  prepararSiguienteCiclo();
+bool transitionS4S5(){
+  if (siguiente_pos_disponible == CANTIDAD_LUGARES_MAXIMOS) return false;
+  Serial.print("Lugares usados: ");
+  Serial.println(siguiente_pos_disponible);
   return true;
 }
+//------------------------
+void state5(){
+  if(machine.executeOnce){
+    apagarLeds();
+    //Encender LED
+    digitalWrite(Filas[CANTIDAD_FILAS-1], LOW);
+    digitalWrite(Columna_Anodos[pieza_levantada], HIGH);
+    
+    ultima_transicion = millis();
+    estado_anterior = "S5";
+  }
+}
+bool transitionS5S5bis(){
+  if (millis() - ultima_transicion > TIEMPO_POV_ON_MS){
+    return true;
+  }
+  return false;
+}
+//------------------------
+void state5bis(){
+  if(machine.executeOnce){
+    apagarLeds();
+    //Referencia para POV
+    ultima_transicion = millis();
+    estado_anterior = "S5bis";
+  }
+  int espera_insercion = true;
+  insercion = leerContenedor(espera_insercion);
+}
 
+bool transitionS5bisS5(){
+  if (millis() - ultima_transicion > TIEMPO_POV_OFF_MS)
+    return true;
+  return false;
+}
+
+bool transitionS5bisS2(){
+  if (insercion){ //si se inserta en la ultima fila
+    prepararSiguienteCiclo();
+    return true;
+  }
+  return false;
+}
 //-------------------------
 bool transitionS0S1(){
   return analizar;
@@ -290,6 +335,16 @@ bool transitionS0S3(){
 bool transitionS0S3bis(){
   if (es_comando) return false;
   if (estado_anterior == "S3bis") return true;
+  return false;
+}
+bool transitionS0S5(){
+  if (es_comando) return false;
+  if (estado_anterior == "S5") return true;
+  return false;
+}
+bool transitionS0S5bis(){
+  if (es_comando) return false;
+  if (estado_anterior == "S5bis") return true;
   return false;
 }
 bool transitionS1S0(){

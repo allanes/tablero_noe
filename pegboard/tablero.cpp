@@ -20,16 +20,21 @@ bool insercion;
 int pieza_levantada = -1;
 int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS] = {0};
 int lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
+int siguiente_pos_disponible = 0;
 //Conexiones de GPIO
 byte Fila2=46;//PL3;
 byte Fila1=48;//PL1; // Fila de arriba
 byte Fila3=44;//PL5;
 byte Fila4=42;//PL7; // Fila de abajo
 byte Fila5=40; // Contenedor de fichas
-byte ColumnaA=38; // Columna más a la izquierda
-byte ColumnaB=36;
-byte ColumnaC=34;
-byte ColumnaD=32; // Columna más a la derecha
+byte ColumnaTableroA=38; // Columna más a la izquierda
+byte ColumnaTableroB=36;
+byte ColumnaTableroC=34;
+byte ColumnaTableroD=32; // Columna más a la derecha
+byte ColumnaDepositoA=4; // Columna más a la izquierda
+byte ColumnaDepositoB=5;
+byte ColumnaDepositoC=6;
+byte ColumnaDepositoD=7; // Columna más a la derecha
 byte AnodosColumna1 = 30;
 byte AnodosColumna2 = 28;
 byte AnodosColumna3 = 26;
@@ -39,14 +44,19 @@ byte Filas[CANTIDAD_FILAS]={    Fila1,
                                 Fila3,
                                 Fila4,
                                 Fila5};
-byte Columnas[CANTIDAD_COLUMNAS]={  ColumnaA,
-                                    ColumnaB,
-                                    ColumnaC,
-                                    ColumnaD};
+byte Columnas_Tablero[CANTIDAD_COLUMNAS]={  ColumnaTableroA,
+                                    ColumnaTableroB,
+                                    ColumnaTableroC,
+                                    ColumnaTableroD};
 byte Columna_Anodos[CANTIDAD_COLUMNAS] = {  AnodosColumna1, 
                                             AnodosColumna2, 
                                             AnodosColumna3, 
                                             AnodosColumna4};
+byte Columnas_Deposito[CANTIDAD_COLUMNAS] = {  ColumnaDepositoA,
+                                              ColumnaDepositoB,
+                                              ColumnaDepositoC,
+                                              ColumnaDepositoD};
+
 
 void encenderLeds(){
   for (int i = 0; i < CANTIDAD_FILAS; i++){
@@ -57,19 +67,6 @@ void encenderLeds(){
       digitalWrite(Columna_Anodos[j], LOW);
     }
     digitalWrite(Filas[i], HIGH);
-  }
-}
-
-void encenderCantidadUsados(){  
-  int lugares_usados;
-  for (int k=0; k<2; k++){
-    //lugares_disponibles es 16 al principio
-    lugares_usados = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles - 1;
-    digitalWrite(Filas[lugares_usados / (CANTIDAD_FILAS - 1)], LOW);
-    digitalWrite(Columna_Anodos[lugares_usados % CANTIDAD_COLUMNAS], HIGH);
-    delay(250);
-    apagarLeds();
-    delay(150);
   }
 }
 
@@ -90,14 +87,16 @@ void encenderLed(){
   digitalWrite(Columna_Anodos[target_columna], HIGH);
 }
 
-int leerContenedor(){
+int leerContenedor(bool espera_insercion_levantado){
   int ret = -1;
   int fila_contenedora = CANTIDAD_FILAS - 1;
   digitalWrite(Filas[fila_contenedora], HIGH);
-  for (int col = 0; col < CANTIDAD_COLUMNAS - 1; col++){
+  for (int col = 0; col < CANTIDAD_COLUMNAS; col++){
   // pythfor (int col = 0; col < 1; col++){
-    if (digitalRead(Columnas[col]) == false){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
-      Serial.print("Levanto PIEZA ");
+    if (digitalRead(Columnas_Deposito[col]) == espera_insercion_levantado){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
+      String texto = espera_insercion_levantado ?
+                      "Inserto pieza columna " : "Levanto pieza columna ";
+      Serial.print(texto);
       Serial.println(col);
       ret = col;
       break;
@@ -108,16 +107,17 @@ int leerContenedor(){
 
 bool leerTablero(){
   bool ret = false;
+  
   for (int i = 0; i < CANTIDAD_FILAS; i++){
     digitalWrite(Filas[i], LOW);
   }
   for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
     digitalWrite(Columna_Anodos[j], LOW);
-  }
+  }  
   for(int i = 0; i < CANTIDAD_FILAS - 1; i++){
     digitalWrite(Filas[i], HIGH);
     for(int j = 0; j < CANTIDAD_COLUMNAS; j++){
-      if(digitalRead(Columnas[j])){ //si es True, insertó pieza
+      if(digitalRead(Columnas_Tablero[j])){ //si es True, insertó pieza
         ret = true;
         insercion_fila = i;
         insercion_columna = j;
@@ -149,11 +149,14 @@ void inicializarTablero(){
     digitalWrite(AnodosColumna3, LOW);
     digitalWrite(AnodosColumna4, LOW);
     //-----
-    pinMode(ColumnaA,INPUT);  
-    pinMode(ColumnaB,INPUT);  
-    pinMode(ColumnaC,INPUT);  
-    pinMode(ColumnaD,INPUT);
-
+    pinMode(ColumnaTableroA,INPUT);  
+    pinMode(ColumnaTableroB,INPUT);  
+    pinMode(ColumnaTableroC,INPUT);  
+    pinMode(ColumnaTableroD,INPUT);
+    pinMode(ColumnaDepositoA,INPUT);  
+    pinMode(ColumnaDepositoB,INPUT);  
+    pinMode(ColumnaDepositoC,INPUT);  
+    pinMode(ColumnaDepositoD,INPUT);
     //Enciende todos los LEDs. Sirve para comprobar que todos funcionen
     encenderLeds();
     //Para la funcion random
@@ -171,7 +174,8 @@ void elegirProximaFilaYColumna(){
 
 void resetTablero(){
   //Reseteo el tablero_usado para volver a empezar
-    lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
+    // lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
+    siguiente_pos_disponible = 0;
     for (int i=0; i<CANTIDAD_FILAS-1; i++){
       for (int j=0; j<CANTIDAD_COLUMNAS; j++){
         tablero_usado[i][j] = 0;

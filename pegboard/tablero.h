@@ -30,6 +30,7 @@ extern unsigned long ultima_transicion;
 extern int target_fila, target_columna;
 extern int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS];
 extern int lugares_disponibles;
+extern int siguiente_pos_disponible;
 extern int insercion_columna, insercion_fila;
 extern bool insercion;
 extern int pieza_levantada;
@@ -40,25 +41,30 @@ extern byte Fila1;//PL1; // Fila de arriba
 extern byte Fila3;//PL5;
 extern byte Fila4;//PL7; // Fila de abajo
 extern byte Fila5; // Contenedor de fichas
-extern byte ColumnaA; // Columna más a la izquierda
-extern byte ColumnaB;
-extern byte ColumnaC;
-extern byte ColumnaD; // Columna más a la derecha
+extern byte ColumnaTableroA; // Columna más a la izquierda
+extern byte ColumnaTableroB;
+extern byte ColumnaTableroC;
+extern byte ColumnaTableroD; // Columna más a la derecha
+extern byte ColumnaDepositoA; // Columna más a la izquierda
+extern byte ColumnaDepositoB;
+extern byte ColumnaDepositoC;
+extern byte ColumnaDepositoD; // Columna más a la derecha
 extern byte AnodosColumna1;
 extern byte AnodosColumna2;
 extern byte AnodosColumna3;
 extern byte AnodosColumna4;
 extern byte Filas[CANTIDAD_FILAS];
-extern byte Columnas[CANTIDAD_COLUMNAS];
+extern byte Columnas_Tablero[CANTIDAD_COLUMNAS];
 extern byte Columna_Anodos[CANTIDAD_COLUMNAS];
+extern byte Columnas_Deposito[CANTIDAD_COLUMNAS];
 
 //------Funciones-------
 void encenderLeds();
 void apagarLeds();
-void encenderCantidadUsados();
 void encenderLed();
-int leerContenedor();
+int leerContenedor(bool);
 bool leerTablero();
+bool leerDeposito();
 void inicializarTablero();
 void elegirProximaFilaYColumna();
 void resetTablero();
