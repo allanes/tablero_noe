@@ -18,6 +18,7 @@
 #include <StateMachine.h>
 
 extern void inicializarTablero();
+bool repuso_Pieza;
 
 //Para la MEF
 StateMachine machine = StateMachine();
@@ -184,8 +185,7 @@ void state2bis(){
     ultima_transicion = millis();
     estado_anterior = "S2bis";
   }
-  bool espera_insercion = false;
-  pieza_levantada = leerContenedor(espera_insercion);
+  pieza_levantada = levantoDelContenedor();
 }
 
 bool transitionS2bisS2(){
@@ -275,9 +275,8 @@ void state5(){
   if(machine.executeOnce){
     apagarLeds();
     //Encender LED
-    digitalWrite(Filas[CANTIDAD_FILAS-1], LOW);
+    digitalWrite(Filas[CANTIDAD_FILAS-1], LOW); //CATODO
     digitalWrite(Columna_Anodos[pieza_levantada], HIGH);
-    
     ultima_transicion = millis();
     estado_anterior = "S5";
   }
@@ -296,8 +295,20 @@ void state5bis(){
     ultima_transicion = millis();
     estado_anterior = "S5bis";
   }
-  int espera_insercion = true;
-  insercion = leerContenedor(espera_insercion);
+  /*
+  while (1){
+    repuso_Pieza = insertoPiezaLevantada();
+    if (repuso_Pieza){
+      Serial.println("Contenedor leido. Repuso pieza");
+    }else{
+      Serial.println("Contenedor leido. NO repuso pieza");
+    }
+  }
+  */
+ repuso_Pieza = false;
+ if (!leerTablero()){
+  repuso_Pieza = insertoPiezaLevantada();
+ }
 }
 
 bool transitionS5bisS5(){
@@ -307,11 +318,12 @@ bool transitionS5bisS5(){
 }
 
 bool transitionS5bisS2(){
-  if (insercion){ //si se inserta en la ultima fila
-    prepararSiguienteCiclo();
-    return true;
-  }
-  return false;
+  if (!repuso_Pieza)
+    return false;
+  //else
+  //si se inserta en la columna de la pieza levantada
+  prepararSiguienteCiclo();
+  return true;
 }
 //-------------------------
 bool transitionS0S1(){

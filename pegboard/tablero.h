@@ -32,8 +32,9 @@ extern int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS];
 extern int lugares_disponibles;
 extern int siguiente_pos_disponible;
 extern int insercion_columna, insercion_fila;
-extern bool insercion;
+extern int insercion;
 extern int pieza_levantada;
+enum {BUSCA_LEVANTADO, BUSCA_INSERCION};
 #define CANTIDAD_LUGARES_MAXIMOS ((CANTIDAD_FILAS - 1) * CANTIDAD_COLUMNAS)
 //Conexiones de GPIO
 extern byte Fila2;//PL3;
@@ -62,9 +63,9 @@ extern byte Columnas_Deposito[CANTIDAD_COLUMNAS];
 void encenderLeds();
 void apagarLeds();
 void encenderLed();
-int leerContenedor(bool);
+int levantoDelContenedor();
+bool insertoPiezaLevantada();
 bool leerTablero();
-bool leerDeposito();
 void inicializarTablero();
 void elegirProximaFilaYColumna();
 void resetTablero();

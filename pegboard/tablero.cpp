@@ -16,7 +16,7 @@ unsigned long ultima_transicion;
 //Manejo del tablero
 int target_fila, target_columna;
 int insercion_columna, insercion_fila;
-bool insercion;
+int insercion;
 int pieza_levantada = -1;
 int tablero_usado[CANTIDAD_FILAS][CANTIDAD_COLUMNAS] = {0};
 int lugares_disponibles = CANTIDAD_LUGARES_MAXIMOS;
@@ -87,40 +87,56 @@ void encenderLed(){
   digitalWrite(Columna_Anodos[target_columna], HIGH);
 }
 
-int leerContenedor(bool espera_insercion_levantado){
+bool insertoPiezaLevantada(){
+  bool ret = false;
+  // digitalWrite(Filas[CANTIDAD_FILAS - 1], HIGH);
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
+  digitalWrite(Columna_Anodos[pieza_levantada], LOW);
+  // for (int i=0; i<3; i++)
+  // while(1)
+  {
+    // delay(50);
+    // ret = digitalRead(Columnas_Deposito[pieza_levantada]);
+    ret = !digitalRead(Columnas_Deposito[pieza_levantada]);
+    
+  }
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
+  return ret;
+}
+
+int levantoDelContenedor(){
   int ret = -1;
-  int fila_contenedora = CANTIDAD_FILAS - 1;
-  digitalWrite(Filas[fila_contenedora], HIGH);
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
   for (int col = 0; col < CANTIDAD_COLUMNAS; col++){
-  // pythfor (int col = 0; col < 1; col++){
-    if (digitalRead(Columnas_Deposito[col]) == espera_insercion_levantado){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
-      String texto = espera_insercion_levantado ?
-                      "Inserto pieza columna " : "Levanto pieza columna ";
-      Serial.print(texto);
+    // if (digitalRead(Columnas_Deposito[col]) == LOW){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
+    if (digitalRead(Columnas_Deposito[col]) == HIGH){
+      Serial.print("Levanto pieza ");
       Serial.println(col);
       ret = col;
       break;
     }
   }
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
   return ret;
 }
 
 bool leerTablero(){
   bool ret = false;
   
-  for (int i = 0; i < CANTIDAD_FILAS; i++){
+  for (int i = 0; i < CANTIDAD_FILAS - 1; i++){
     digitalWrite(Filas[i], LOW);
   }
-  for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
-    digitalWrite(Columna_Anodos[j], LOW);
-  }  
+  // for (int j = 0; j < CANTIDAD_COLUMNAS; j++){
+  //   digitalWrite(Columna_Anodos[j], LOW);
+  // }  
   for(int i = 0; i < CANTIDAD_FILAS - 1; i++){
-    digitalWrite(Filas[i], HIGH);
+    digitalWrite(Filas[i], HIGH); //Filas = Catodos
     for(int j = 0; j < CANTIDAD_COLUMNAS; j++){
       if(digitalRead(Columnas_Tablero[j])){ //si es True, insertó pieza
-        ret = true;
         insercion_fila = i;
         insercion_columna = j;
+        digitalWrite(Filas[i], LOW);
+        return true;
       }
     }
     digitalWrite(Filas[i], LOW);
@@ -153,10 +169,10 @@ void inicializarTablero(){
     pinMode(ColumnaTableroB,INPUT);  
     pinMode(ColumnaTableroC,INPUT);  
     pinMode(ColumnaTableroD,INPUT);
-    pinMode(ColumnaDepositoA,INPUT);  
-    pinMode(ColumnaDepositoB,INPUT);  
-    pinMode(ColumnaDepositoC,INPUT);  
-    pinMode(ColumnaDepositoD,INPUT);
+    pinMode(ColumnaDepositoA,INPUT_PULLUP);  
+    pinMode(ColumnaDepositoB,INPUT_PULLUP);  
+    pinMode(ColumnaDepositoC,INPUT_PULLUP);  
+    pinMode(ColumnaDepositoD,INPUT_PULLUP);
     //Enciende todos los LEDs. Sirve para comprobar que todos funcionen
     encenderLeds();
     //Para la funcion random
