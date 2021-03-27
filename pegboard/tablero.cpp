@@ -110,8 +110,6 @@ int levantoDelContenedor(){
   for (int col = 0; col < CANTIDAD_COLUMNAS; col++){
     // if (digitalRead(Columnas_Deposito[col]) == LOW){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
     if (digitalRead(Columnas_Deposito[col]) == HIGH){
-      Serial.print("Levanto pieza ");
-      Serial.println(col);
       ret = col;
       break;
     }

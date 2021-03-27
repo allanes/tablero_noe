@@ -79,32 +79,22 @@ void setup() {
 }
 
 void enviarResultados(){
-  // int siguiente_pos_disponible = CANTIDAD_LUGARES_MAXIMOS - lugares_disponibles;
-  String piezas[CANTIDAD_COLUMNAS] = {"Circulo", "Triangulo", "Cuadrado", "Pentagono"};
-  Serial.print("Pieza N");
-  Serial.println(siguiente_pos_disponible);
-  Serial.print("Forma levantada: ");
-  Serial.println(piezas[pieza_levantada]);
-  Serial.print("Fila de insercion: ");
-  Serial.println(insercion_fila);
-  Serial.print("Columna de insercion: ");
-  Serial.println(insercion_columna);
-  Serial.print("Tiempo al iniciar: ");
-  Serial.println(tiempo_inicial);
-  Serial.print("Tiempo al alzar: ");
-  Serial.println(tiempo_en_alzar);
-  Serial.print("Tiempo al final: ");
-  Serial.println(tiempo_final);
-  Serial.print("\nDemora en alzar: ");
-  Serial.println(tiempo_en_alzar - tiempo_inicial);
-  Serial.print("Demora en insertar desde alzado: ");
-  Serial.println(tiempo_final - tiempo_en_alzar);
-  Serial.print("Demora total: ");
-  Serial.println(tiempo_final - tiempo_inicial);
-  if (siguiente_pos_disponible == CANTIDAD_LUGARES_MAXIMOS){
-    Serial.println("Fin del proceso...");
+  Serial.print(siguiente_pos_disponible); Serial.print(",");
+  Serial.print(pieza_levantada); Serial.print(",");
+  Serial.print(insercion_fila);  Serial.print(",");
+  Serial.print(insercion_columna); Serial.print(",");
+  bool inserto_correctamente =  (insercion_columna == target_columna) && 
+                                (insercion_fila == target_fila);  
+  Serial.print(inserto_correctamente); Serial.print(",");
+  Serial.print(tiempo_inicial); Serial.print(",");
+  Serial.print(tiempo_en_alzar); Serial.print(",");
+  Serial.print(tiempo_final); Serial.print(",");
+  Serial.print(tiempo_en_alzar - tiempo_inicial); Serial.print(",");
+  Serial.print(tiempo_final - tiempo_en_alzar); Serial.print(",");
+  Serial.print(tiempo_final - tiempo_inicial); Serial.print("\n");
+  if (siguiente_pos_disponible == CANTIDAD_LUGARES_MAXIMOS - 1){
+    Serial.print("Fin del proceso...");
   }
-  Serial.println("-------------------------------------");
 }
 
 void prepararSiguienteCiclo(){
@@ -114,6 +104,17 @@ void prepararSiguienteCiclo(){
   Serial.println("--------------------------");
   if (siguiente_pos_disponible == 0){
     Serial.println("Ciclo Iniciado");
+    Serial.print("Bloque,");
+    Serial.print("Pieza,");
+    Serial.print("Fila de insercion,");
+    Serial.print("Columna de insercion,");
+    Serial.print("Pieza insertada correctamente,");
+    Serial.print("Tiempo al iniciar,");
+    Serial.print("Tiempo al alzar,");
+    Serial.print("Tiempo al final,");
+    Serial.print("Demora en alzar,");
+    Serial.print("Demora en insertar desde alzado,");
+    Serial.println("Demora total");
   }
   tiempo_inicial = millis();
 }
@@ -266,8 +267,6 @@ bool transitionS4S0(){
 
 bool transitionS4S5(){
   if (siguiente_pos_disponible == CANTIDAD_LUGARES_MAXIMOS) return false;
-  Serial.print("Lugares usados: ");
-  Serial.println(siguiente_pos_disponible);
   return true;
 }
 //------------------------
@@ -295,18 +294,9 @@ void state5bis(){
     ultima_transicion = millis();
     estado_anterior = "S5bis";
   }
-  /*
-  while (1){
-    repuso_Pieza = insertoPiezaLevantada();
-    if (repuso_Pieza){
-      Serial.println("Contenedor leido. Repuso pieza");
-    }else{
-      Serial.println("Contenedor leido. NO repuso pieza");
-    }
-  }
-  */
- repuso_Pieza = false;
- if (!leerTablero()){
+
+  repuso_Pieza = false;
+  if (!leerTablero()){
   repuso_Pieza = insertoPiezaLevantada();
  }
 }

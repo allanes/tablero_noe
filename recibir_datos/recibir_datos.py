@@ -40,24 +40,23 @@ def abriryenviar(cmd, guardar):
             else: guardando = True
             
             for line in lines:
-                if guardando:
-                    guardar = guardar + line.decode("utf8", 'ignore')
-                    print(line)
-
                 if line.startswith(clave_inicio):
                     guardando = True
                     now = datetime.now()
                     hora_inicio = now.strftime("%Y%m%d%H%M%S")
-                    guardar = hora_inicio + '\n'
+                    continue
                 elif line.startswith(clave_fin): 
                     guardando = False
                     # escribe la variable guardar en un nuevo archivo
                     my_file = open(hora_inicio + '.txt', 'w')
-                    my_file.writelines(guardar) #Write multiple lines
+                    my_file.write(guardar) #Write multiple lines
                     my_file.close()
                     print('Creado archivo ' + hora_inicio + '.txt')
                     nuevocomando = 'q'
-                    
+                if guardando:
+                    aux = line.decode("utf8", 'ignore')
+                    guardar = guardar + aux.strip("\n-")
+                    # print(line)
             
         if nuevocomando == 'STOP' or 'q':
             print('\nESCRIBE STOP\n')
