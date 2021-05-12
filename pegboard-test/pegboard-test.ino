@@ -1,166 +1,48 @@
 // pegboard-test
 // Pruebas de integridad del hardware
 //
-// Gustavo Enrique Jiménez
-// gejimenez@gmail.com
-// ILAV - CONICET - 2020
+// Este sketch propone una prueba secuencial de lectura de piezas 
+// insertadas sobre la fila contenedora de piezas.
+// 
+// La configuración debe ser la del sketch principal y debe 
+// hacer uso de las declaraciones dadas en tablero.h.
+//
+//
 
-// 10/03/2020 - Agregado de cables para encender los LEDs. El multiplexado 
-//              deja los LEDs ligeramente encendidos, así que se agrega un 
-//              cable para cada columna de LEDs y el software para
-//              encenderlos.
-// 04/03/2020 - Comienzo a escribir el programa
+#include <Arduino.h>
+#include "tablero.h"
 
+extern void inicializarTablero();
+void encenderYEsperar();
+bool repuso_Pieza;
+int cuenta;
 
-byte Fila1=48;//PL1; // Fila de arriba
-byte Fila2=46;//PL3;
-byte Fila3=44;//PL5;
-byte Fila4=42;//PL7; // Fila de abajo
-byte Fila5=40; // Contenedor de fichas
-byte ColumnaA=38; // Columna más a la izquierda
-byte ColumnaB=36;
-byte ColumnaC=34;
-byte ColumnaD=32; // Columna más a la derecha
-byte ColLEDA=30; //Columna más a la izquierda
-byte ColLEDB=28;
-byte ColLEDC=26;
-byte ColLEDD=24; // Columna más a la derecha
-
-
-
-// the setup function runs once when you press reset or power the board
-void setup() {
+void setup(){
+  delay(500);
   Serial.begin(115200);
   Serial.println("Iniciando pegboard-test");
-  pinMode(Fila1,OUTPUT);
-  pinMode(Fila2,OUTPUT);
-  pinMode(Fila3,OUTPUT);
-  pinMode(Fila4,OUTPUT);
-  pinMode(Fila5,OUTPUT);
-  digitalWrite(Fila1,LOW);
-  digitalWrite(Fila2,LOW);
-  digitalWrite(Fila3,LOW);
-  digitalWrite(Fila4,LOW);
-  digitalWrite(Fila5,LOW);
-  pinMode(ColumnaA,INPUT);  
-  pinMode(ColumnaB,INPUT);  
-  pinMode(ColumnaC,INPUT);  
-  pinMode(ColumnaD,INPUT);
-  Serial.println("Puertos iniciados");
+  inicializarTablero();
 }
 
-void BarrerFilas(){
- digitalWrite(Fila1,HIGH); 
- digitalWrite(Fila2,HIGH); 
- digitalWrite(Fila3,HIGH); 
- digitalWrite(Fila4,HIGH); 
- digitalWrite(Fila5,HIGH); 
- for (int i=0;i<20;i++){
-  digitalWrite(Fila1,LOW);
-  delay(2);
-  digitalWrite(Fila1,HIGH);
-  digitalWrite(Fila2,LOW);
-  delay(2);
-  digitalWrite(Fila2,HIGH);
-  digitalWrite(Fila3,LOW);
-  delay(2);
-  digitalWrite(Fila3,HIGH);
-  digitalWrite(Fila4,LOW);
-  delay(2);
-  digitalWrite(Fila4,HIGH);
-  digitalWrite(Fila5,LOW);
-  delay(2);
-  digitalWrite(Fila5,HIGH);  
- }
-}
-
-void ProbarColumnas(){
- Serial.println("Prueba de columnas");
- digitalWrite(Fila1,HIGH);
- digitalWrite(Fila2,HIGH);
- digitalWrite(Fila3,HIGH);
- digitalWrite(Fila4,HIGH);
- digitalWrite(Fila5,HIGH);
- pinMode(ColumnaA,OUTPUT);  
- pinMode(ColumnaB,OUTPUT);  
- pinMode(ColumnaC,OUTPUT);  
- pinMode(ColumnaD,OUTPUT);
- digitalWrite(ColumnaA,LOW);
- digitalWrite(ColumnaB,LOW);
- digitalWrite(ColumnaC,LOW);
- digitalWrite(ColumnaD,LOW);
-
- digitalWrite(ColumnaA,HIGH);
- BarrerFilas();
- digitalWrite(ColumnaA,LOW);
- digitalWrite(ColumnaB,HIGH);
- BarrerFilas();
- digitalWrite(ColumnaB,LOW);
- digitalWrite(ColumnaC,HIGH);
- BarrerFilas();
- digitalWrite(ColumnaC,LOW);
- digitalWrite(ColumnaD,HIGH);
- BarrerFilas();
- digitalWrite(ColumnaD,LOW);
-}
-
-void BarrerColumnas(){
- for (int i=0;i<20;i++){
-  digitalWrite(ColumnaA,HIGH);
-  delay(2);
-  digitalWrite(ColumnaA,LOW);
-  digitalWrite(ColumnaB,HIGH);
-  delay(2);
-  digitalWrite(ColumnaB,LOW);
-  digitalWrite(ColumnaC,HIGH);
-  delay(2);
-  digitalWrite(ColumnaC,LOW);
-  digitalWrite(ColumnaD,HIGH);
-  delay(2);
-  digitalWrite(ColumnaD,LOW);
- }
-}
-
-void ProbarFilas(){
- Serial.println("Prueba de filas");
- digitalWrite(Fila1,HIGH);
- digitalWrite(Fila2,HIGH);
- digitalWrite(Fila3,HIGH);
- digitalWrite(Fila4,HIGH);
- digitalWrite(Fila5,HIGH);
- pinMode(ColumnaA,OUTPUT);  
- pinMode(ColumnaB,OUTPUT);  
- pinMode(ColumnaC,OUTPUT);  
- pinMode(ColumnaD,OUTPUT);
- digitalWrite(ColumnaA,LOW);
- digitalWrite(ColumnaB,LOW);
- digitalWrite(ColumnaC,LOW);
- digitalWrite(ColumnaD,LOW);
-
- digitalWrite(Fila1,LOW);
- BarrerColumnas();
- digitalWrite(Fila1,HIGH);
- digitalWrite(Fila2,LOW);
- BarrerColumnas();
- digitalWrite(Fila2,HIGH);
- digitalWrite(Fila3,LOW);
- BarrerColumnas();
- digitalWrite(Fila3,HIGH);
- digitalWrite(Fila4,LOW);
- BarrerColumnas();
- digitalWrite(Fila4,HIGH);
- digitalWrite(Fila5,LOW);
- BarrerColumnas();
- digitalWrite(Fila5,HIGH);
-}
-
-
-// the loop function runs over and over again forever
-void loop() {
-  
-  ProbarColumnas();
-  ProbarFilas();  
-//  pinMode(ColumnaB,OUTPUT);
- // digitalWrite(Fila1,LOW);
- // digitalWrite(ColumnaB,HIGH);
+void loop(){
+  Serial.println("Inicio del Test");
+  Serial.println("Fila contenedora");
+  Serial.print("Prueba retorno de carro");
+  Serial.print("\r");
+  Serial.print("Actualizando linea");
+  Serial.print("\n");
+  //---------------------------------
+  int j = 0;
+  while (1){
+    insercion = leerContenedorPosicion(j);
+    Serial.print(insercion);
+    Serial.print(" ");
+    j++;
+    if (j == CANTIDAD_COLUMNAS){
+      j = 0;
+      Serial.print("\r");
+    }
+  }
+  //---------------------------------
+  Serial.println("Fin del Test");
 }
