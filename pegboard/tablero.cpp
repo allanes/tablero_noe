@@ -89,17 +89,9 @@ void encenderLed(){
 
 bool insertoPiezaLevantada(){
   bool ret = false;
-  // digitalWrite(Filas[CANTIDAD_FILAS - 1], HIGH);
-  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
-  digitalWrite(Columna_Anodos[pieza_levantada], LOW);
-  // for (int i=0; i<3; i++)
-  // while(1)
-  {
-    // delay(50);
-    // ret = digitalRead(Columnas_Deposito[pieza_levantada]);
-    ret = !digitalRead(Columnas_Deposito[pieza_levantada]);
-    
-  }
+
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], HIGH);
+  ret = digitalRead(Columnas_Deposito[pieza_levantada]);
   digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
   return ret;
 }
