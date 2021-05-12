@@ -38,7 +38,7 @@ String estado_anterior = "S0";
 void setup() {
   delay(500);
   Serial.begin(115200);
-  Serial.println("Iniciando pegboard-test");
+  Serial.println("Iniciando pegboard");
   inicializarTablero();
   
   //Le paso una entrada a la funcion random  
@@ -128,12 +128,12 @@ void state0(){
     char caracter = Serial.read();
     if (caracter != '\n'){
       recibido += caracter;
-      analizar = false;
+      analizar = false;      
     }else {
       analizar = true;
       entrada = recibido;
       recibido = "";
-    } 
+    }
   }
 }
 
@@ -142,7 +142,7 @@ void state1(){
     //Procesa la entrada
     es_comando = false;
     if (entrada == COMANDO_INICIO || entrada == COMANDO_FIN){
-      es_comando = true;
+    es_comando = true;
     }
     estado_anterior = "S0";
   }
@@ -152,7 +152,7 @@ void state1(){
 
 bool transitionS1S2(){
   if (!es_comando) return false;
-
+  
   if (entrada == COMANDO_INICIO){
     entrada = "";
     analizar = false;
@@ -199,7 +199,6 @@ bool transitionS2bisS2(){
 bool transitionS2bisS3(){
   if (pieza_levantada == -1)
     return false;
-
   //Muestrea tiempo que tardó en alzar la pieza
   tiempo_en_alzar = millis();
   return true;

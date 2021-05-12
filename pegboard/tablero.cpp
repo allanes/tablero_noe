@@ -106,10 +106,12 @@ bool insertoPiezaLevantada(){
 
 int levantoDelContenedor(){
   int ret = -1;
-  digitalWrite(Filas[CANTIDAD_FILAS - 1], LOW);
+  //Enciendo los LEDs transmisores IR
+  digitalWrite(Filas[CANTIDAD_FILAS - 1], HIGH);
+  //Leo colector 
   for (int col = 0; col < CANTIDAD_COLUMNAS; col++){
-    // if (digitalRead(Columnas_Deposito[col]) == LOW){ //Estan todas las piezas puestas y cuando levanta una se va a LOW esa columna
-    if (digitalRead(Columnas_Deposito[col]) == HIGH){
+    //Leo el colector del fototransistor columna por columna
+    if (digitalRead(Columnas_Deposito[col]) == LOW){
       ret = col;
       break;
     }
