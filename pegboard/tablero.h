@@ -68,4 +68,5 @@ bool insertoPiezaLevantada();
 bool leerTablero();
 void inicializarTablero();
 void elegirProximaFilaYColumna();
+void elegirProximaFilaYColumnaSecuencial();
 void resetTablero();

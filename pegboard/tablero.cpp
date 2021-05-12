@@ -14,7 +14,7 @@ String recibido = "";
 unsigned long tiempo_inicial, tiempo_en_alzar, tiempo_final;
 unsigned long ultima_transicion;
 //Manejo del tablero
-int target_fila, target_columna;
+int target_fila=0, target_columna=-1;
 int insercion_columna, insercion_fila;
 int insercion;
 int pieza_levantada = -1;
@@ -184,6 +184,21 @@ void elegirProximaFilaYColumna(){
   }while(tablero_usado[target_fila][target_columna] == 1);
   
   tablero_usado[target_fila][target_columna] = 1;
+}
+
+void elegirProximaFilaYColumnaSecuencial(){
+  target_columna++;
+  if (target_columna == CANTIDAD_COLUMNAS){
+    target_columna = 0;
+    target_fila++;
+    if (target_fila == CANTIDAD_FILAS){
+      target_fila = 0;
+    }
+  }
+  Serial.print("Posicion ");
+  Serial.print(target_fila);
+  Serial.print(", ");
+  Serial.println(target_columna);
 }
 
 void resetTablero(){
