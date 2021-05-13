@@ -237,6 +237,7 @@ bool transitionS3bisS4(){
   if (insercion){
     //Muestrea el tiempo final de insercion de la pieza
     tiempo_final = millis();
+    delay(200);
     return true;
   }
   return false;
@@ -296,7 +297,7 @@ void state5bis(){
 
   repuso_Pieza = false;
   if (!leerTablero()){
-  repuso_Pieza = insertoPiezaLevantada();
+    repuso_Pieza = insertoPiezaLevantada();
  }
 }
 
@@ -354,6 +355,7 @@ bool transitionS1S0(){
     if (entrada == COMANDO_FIN){
       analizar = false;
       entrada = "";
+      resetTablero();
       Serial.println("Ciclo abortado");
     }
     return true;
