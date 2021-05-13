@@ -1,6 +1,6 @@
 {
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
-    "port": "COM11",
+    "port": "COM8",
     "sketch": "pegboard\\pegboard.ino"
 }
