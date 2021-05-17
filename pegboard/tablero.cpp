@@ -87,9 +87,8 @@ void encenderLed(){
   digitalWrite(Columna_Anodos[target_columna], HIGH);
 }
 
-void encenderFilas(int t_f){
+void encenderFilas(){
   //convierto tiempo t_f de segundos a milisegundos
-  unsigned long tiempo_fila = t_f * 1000;
   unsigned long inicio;
   apagarLeds();
   for (int j=0; j<CANTIDAD_FILAS - 1; j++){
@@ -101,7 +100,7 @@ void encenderFilas(int t_f){
         delay(5);
         digitalWrite(Columna_Anodos[i], LOW);
       }      
-    }while(millis() - inicio < tiempo_fila);
+    }while(millis() - inicio < TIEMPO_FILA);
     digitalWrite(Filas[j], HIGH);
   }
 }

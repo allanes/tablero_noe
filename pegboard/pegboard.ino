@@ -336,7 +336,7 @@ bool transitionS5bisS6(){
 //-------------------------
 void state6(){
   //espera activa para cambiar de posicion fisica el tablero y/o contenedor
-  encenderFilas(2);
+  encenderFilas();
 }
 
 bool transitionS6S2(){
