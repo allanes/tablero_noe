@@ -13,6 +13,7 @@
 #define TIEMPO_POV_ON_MS 10
 #define TIEMPO_POV_OFF_MS 10
 //Tiempo para mover tablero, por fila [ms]
+//(el tiempo total que demora es 4 * TIEMPO_FILA)
 #define TIEMPO_FILA 2000UL
 
 //---------Variables globales----------
