@@ -32,6 +32,7 @@ State* S3bis =  machine.addState(&state3bis);
 State* S4 =  machine.addState(&state4);
 State* S5 = machine.addState(&state5);
 State* S5bis = machine.addState(&state5bis);
+State* S6 = machine.addState(&state6);
 String estado_anterior = "S0";
 
 // the setup function runs once when you press reset or power the board
@@ -61,6 +62,8 @@ void setup() {
   S5->addTransition(&transitionS5S5bis,S5bis);
   S5bis->addTransition(&transitionS5bisS5,S5);
   S5bis->addTransition(&transitionS5bisS2,S2);
+  S5bis->addTransition(&transitionS5bisS6,S6);
+  S6->addTransition(&transitionS6S2, S2);
   //Agrego las transiciones intermedias para leer entrada serie
   S0->addTransition(&transitionS0S1,S1);
   S0->addTransition(&transitionS0S2,S2);
@@ -128,7 +131,7 @@ void state0(){
     char caracter = Serial.read();
     if (caracter != '\n'){
       recibido += caracter;
-      analizar = false;      
+      analizar = false;
     }else {
       analizar = true;
       entrada = recibido;
@@ -142,7 +145,7 @@ void state1(){
     //Procesa la entrada
     es_comando = false;
     if (entrada == COMANDO_INICIO || entrada == COMANDO_FIN){
-    es_comando = true;
+      es_comando = true;      
     }
     estado_anterior = "S0";
   }
@@ -201,6 +204,8 @@ bool transitionS2bisS3(){
     return false;
   //Muestrea tiempo que tardó en alzar la pieza
   tiempo_en_alzar = millis();
+  //chequeo si no leyo mal (demasiado rapido)
+  if (tiempo_en_alzar - tiempo_inicial < 100) return false;
   return true;
 }
 
@@ -237,7 +242,7 @@ bool transitionS3bisS4(){
   if (insercion){
     //Muestrea el tiempo final de insercion de la pieza
     tiempo_final = millis();
-    delay(200);
+    // delay(200);
     return true;
   }
   return false;
@@ -311,7 +316,30 @@ bool transitionS5bisS2(){
   if (!repuso_Pieza)
     return false;
   //else
+  if ((siguiente_pos_disponible) % 4 == 0)
+    return false;
   //si se inserta en la columna de la pieza levantada
+  prepararSiguienteCiclo();
+  return true;
+}
+
+bool transitionS5bisS6(){
+  if (!repuso_Pieza)
+    return false;
+  //else
+  if ((siguiente_pos_disponible) % 4 == 0){
+    return true;
+  }
+
+  return false;
+}
+//-------------------------
+void state6(){
+  //espera activa para cambiar de posicion fisica el tablero y/o contenedor
+  encenderFilas(2);
+}
+
+bool transitionS6S2(){
   prepararSiguienteCiclo();
   return true;
 }

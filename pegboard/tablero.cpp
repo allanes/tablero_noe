@@ -87,6 +87,25 @@ void encenderLed(){
   digitalWrite(Columna_Anodos[target_columna], HIGH);
 }
 
+void encenderFilas(int t_f){
+  //convierto tiempo t_f de segundos a milisegundos
+  unsigned long tiempo_fila = t_f * 1000;
+  unsigned long inicio;
+  apagarLeds();
+  for (int j=0; j<CANTIDAD_FILAS - 1; j++){
+    digitalWrite(Filas[j], LOW);
+    inicio = millis();
+    do{
+      for (int i=0; i<CANTIDAD_COLUMNAS; i++){
+        digitalWrite(Columna_Anodos[i], HIGH);
+        delay(5);
+        digitalWrite(Columna_Anodos[i], LOW);
+      }      
+    }while(millis() - inicio < tiempo_fila);
+    digitalWrite(Filas[j], HIGH);
+  }
+}
+
 bool insertoPiezaLevantada(){
   bool ret = false;
 

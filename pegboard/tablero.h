@@ -63,6 +63,7 @@ extern byte Columnas_Deposito[CANTIDAD_COLUMNAS];
 void encenderLeds();
 void apagarLeds();
 void encenderLed();
+void encenderFilas(int);
 int levantoDelContenedor();
 bool insertoPiezaLevantada();
 bool leerTablero();
