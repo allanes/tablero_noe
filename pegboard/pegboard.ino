@@ -202,6 +202,8 @@ bool transitionS2bisS2(){
 bool transitionS2bisS3(){
   if (pieza_levantada == -1)
     return false;
+  if (pieza_levantada != target_columna)
+    return false;
   //Muestrea tiempo que tardó en alzar la pieza
   tiempo_en_alzar = millis();
   //chequeo si no leyo mal (demasiado rapido)
