@@ -15,6 +15,7 @@ esperar_usuario = 3
 
 
 opcion1 = ''
+aux_mal_levantada = ''
 def abriryenviar(cmd, guardar):
     volveraentrar = False
     with serial.Serial(puerto, velocidad, timeout=1) as ser:
@@ -56,7 +57,9 @@ def abriryenviar(cmd, guardar):
                 if guardando:
                     aux = line.decode("utf8", 'ignore')
                     if (aux.startswith('Pieza mal levantada')):
-                        print(aux)
+                        if (aux_mal_levanta is not aux):
+                            aux_mal_levantada = aux
+                            print(aux_mal_levantada)
                     else:
                         guardar = guardar + aux.strip("\n-")
                     # print(line)
