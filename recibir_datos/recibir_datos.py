@@ -55,6 +55,8 @@ def abriryenviar(cmd, guardar):
                     nuevocomando = 'q'
                 if guardando:
                     aux = line.decode("utf8", 'ignore')
+                    if (aux.find('Pieza mal levantada')):
+                        print(aux)
                     guardar = guardar + aux.strip("\n-")
                     # print(line)
             

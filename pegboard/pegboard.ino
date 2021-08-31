@@ -203,6 +203,8 @@ bool transitionS2bisS3(){
   if (pieza_levantada == -1)
     return false;
   if (pieza_levantada != target_columna)
+    Serial.print("Pieza mal levantada: ");
+    Serial.println(pieza_levantada);
     return false;
   //Muestrea tiempo que tardó en alzar la pieza
   tiempo_en_alzar = millis();
